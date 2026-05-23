@@ -48,3 +48,67 @@ $$s = -\frac{\ln(u)}{\mu}$$
 ## 🛠️ 2. Arquitetura do Software e Engenharia de Código
 
 O simulador foi estruturado seguindo o paradigma de **Programação Orientada a Objetos (POO)**, maximizando a modularidade, escalabilidade e a analogia física direta no código.
+
+📦 monte-carlo-radiation
+┣ 📂 outputs
+┃ ┗ 📂 images
+┃ ┃ ┣ 📜 trajectories.png
+┃ ┃ ┣ 📜 dose_heatmap.png
+┃ ┃ ┗ 📜 energy_distribution.png
+┣ 📜 main.py
+┣ 📜 config.py
+┗ 📜 README.md
+
+### 🧬 Classes Principais
+
+* **`Particle`**: Representa a entidade física elementar. Encapsula os atributos de estado dinâmico: coordenadas cartesianas floating-point $(x, y)$, o ângulo do vetor diretor ($\theta$), a carga energética atual ($E$) e uma flag de atividade (`alive`). Guarda internamente vetores dinâmicos (`path_x`, `path_y`, `energy_history`) para pós-processamento gráfico.
+* **`Material`**: Funciona como base de dados de propriedades radiológicas. Armazena o coeficiente linear $\mu$ associado à densidade eletrónica do meio alvo.
+* **`DoseMap`**: Gerencia uma matriz bidimensional regular discretizada ($N \times M$ células). Contém o método crítico `deposit_energy(x, y, amount)`, que converte as coordenadas contínuas da partícula em índices inteiros da matriz através de um algoritmo de arredondamento por truncagem, acumulando a energia de forma indexada.
+* **`MonteCarloSimulation`**: A classe coordenadora. Implementa o loop estocástico mestre, injeta as partículas a partir da geometria da fonte, testa as condições de contorno de escape espacial e aplica o limiar de corte energético (*energy cut-off* a $E \le 0.01 \, \text{MeV}$) para desativar partículas sem relevância física.
+
+### 📋 Biblioteca de Materiais Implementada
+Os coeficientes lineares foram parametrizados com base nas tabelas do *NIST* para fótons na faixa de energias de ortovoltagem:
+
+| Identificador | Material Técnico | Coeficiente $\mu$ ($\text{cm}^{-1}$) | Densidade $\rho$ ($\text{g/cm}^3$) | Domínio de Aplicação |
+| :--- | :--- | :---: | :---: | :--- |
+| `water` | Água Destilada | 0.15 | 1.00 | Equivalente a Tecido Biológico Humano |
+| `tissue` | Tecido Mole | 0.20 | 1.05 | Dosimetria e Planeamento Radioterápico |
+| `aluminum` | Alumínio | 0.35 | 2.70 | Filtração de Feixes Secundários / Blindagem |
+| `lead` | Chumbo | 1.20 | 11.34 | Proteção Radiológica / Barreiras Pesadas |
+
+---
+
+## 📊 3. Resultados Numéricos e Análise das Imagens
+
+Após o processamento estatístico completo de **50.000 histórias de partículas**, os algoritmos matemáticos geraram os seguintes diagnósticos gráficos na diretoria `outputs/images/`:
+
+### 🗺️ A. Mapa de Trajetórias Estocásticas (`trajectories.png`)
+
+![Mapa de Trajetórias](outputs/images/trajectories.png)
+
+* **Descrição Visual:** Exibe uma densa malha vetorial filamentosa multicolorida que diverge a partir do ponto central de injeção cartesiana da fonte $(200, 200)$. Linhas individuais sofrem deflexões angulares abruptas em ziguezague ao longo do espaço.
+* **Análise Numérica e Física:** Ilustra perfeitamente o fenómeno do **Passeio Aleatório (*Random Walk*)**. As quebras lineares marcam a ocorrência exata de eventos Compton, cuja alteração do ângulo $\theta$ segue uma distribuição gaussiana ($\sigma = 0.5 \, \text{rad}$). É evidente a diferença de penetração entre os materiais: materiais com baixo $\mu$ (como `water`) exibem filamentos longos que cobrem quase todo o domínio de $400 \times 400$ píxeis antes da ocorrência da absorção final.
+
+### 🔥 B. Mapa de Calor da Dose Absorvida (`dose_heatmap.png`)
+
+![Mapa de Calor da Dose](outputs/images/dose_heatmap.png)
+
+* **Descrição Visual:** Matriz bidimensional densa renderizada através da escala cromática `inferno` (*Seaborn*). O núcleo de emissão apresenta uma zona isodósica hiper-intensa e esbranquiçada (amarelo brilhante), decaindo simétrica e radialmente em gradientes de laranja e roxo até atingir o limiar escuro (preto) na periferia.
+* **Análise Numérica e Física:** Mapeia quantitativamente a distribuição da **Dose Absorvida** (energia depositada por unidade de área). O comportamento gráfico valida numericamente a integração da Lei de Beer-Lambert combinada à lei do inverso do quadrado da distância ($1/r^2$). O decaimento acentuado prova que a maior densidade de dose é retida nas proximidades da fonte. Se substituirmos o meio por `lead`, o raio de dispersão contrai-se em mais de $80\%$, confinando a dose a uma área nuclear restrita (comprovando a eficácia da blindagem).
+
+### 📉 C. Histograma Estatístico de Deposição (`energy_distribution.png`)
+
+![Histograma de Energia](outputs/images/energy_distribution.png)
+
+* **Descrição Visual:** Gráfico estatístico de frequências absolutas dividido em 50 classes (*bins*). Apresenta um perfil marcadamente assimétrico positivo (*skewed*), com uma coluna de altíssima frequência na faixa de depósitos de energia mínimos ($E \in [0.01, 0.15] \, \text{MeV}$) e uma cauda longa contínua à direita.
+* **Análise Numérica e Física:** Este gráfico fornece a prova estatística do equilíbrio entre os efeitos Compton e Fotoelétrico. A concentração massiva de baixas energias quantifica o efeito acumulado de colisões Compton sucessivas, onde a partícula perde apenas uma fração da sua energia total. Por sua vez, as contagens isoladas na cauda superior direita mapeiam os eventos de Absorção Fotoelétrica total, onde fótons ainda energéticos transferem subitamente $100\%$ da sua carga restante de uma só vez para o meio.
+
+---
+
+## 🚀 4. Como Executar o Projeto
+
+### 📋 Pré-requisitos
+Certifique-se de que possui o Python 3.8 ou superior instalado no seu sistema, juntamente com o ecossistema básico de bibliotecas científicas:
+
+```bash
+pip install numpy pandas matplotlib seaborn
