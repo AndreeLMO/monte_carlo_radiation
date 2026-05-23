@@ -2,70 +2,73 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Contributions](https://img.shields.io/badge/contributions-welcome-orange.svg)](CONTRIBUTING.md)
+[![Physics](https://img.shields.io/badge/physics-Medical%20%7C%20Radiological-red.svg)]()
 
-Este repositório contém o código-fonte e a documentação técnica de um simulador estocástico baseado no **Método de Monte Carlo** para o transporte e deposição de dose de fótons de baixa e média energia (faixa de radiodiagnóstico e tomografia computadorizada) em meios condensados homogêneos. O diferencial deste código é a amostragem analítica exata da **Seção de Choque Diferencial de Klein-Nishina**, sem aproximações numéricas grosseiras.
+Este repositório hospeda o desenvolvimento de um simulador estocástico nativo em Python projetado para modelar o transporte, espalhamento e deposição de energia (dose) de fótons na faixa de energias de radiodiagnóstico e tomografia computadorizada ($10 \text{ keV}$ a $150 \text{ keV}$) em meios condensados homogêneos. O núcleo analítico do algoritmo realiza a amostragem estocástica exata da **Seção de Choque Diferencial de Klein-Nishina** através da inversão numérica da Função de Distribuição Acumulada (FDA), superando aproximações analíticas simplificadas (como Henyey-Greenstein) comumente aplicadas na literatura.
 
 ---
 
 ## 📋 Sumário
-1. [Fundamentação Teórica](#-fundamentação-teórica)
-    * [Coeficiente de Atenuação Linear](#coeficiente-de-atenuação-linear)
-    * [Efeito Fotoelétrico](#efeito-fotoelétrico)
-    * [Espalhamento Compton Incoerente](#espalhamento-compton-incoerente)
-    * [Seção de Choque de Klein-Nishina](#seção-de-choque-de-klein-nishina)
-2. [Arquitetura do Código](#-arquitetura-do-código)
-    * [Modelagem de Materiais](#modelagem-de-materiais)
-    * [Amostragem Estocástica Angular](#amostragem-estocástica-angular)
-3. [Resultados e Análise Físico-Estatística](#-resultados-e-análise-físico-estatística)
-    * [Estatística de Interações](#estatística-de-interações)
-    * [Perfil Espacial de Deposição de Dose](#perfil-espacial-de-deposição-de-dose)
-    * [Distribuição Angular e Degradação Energética](#distribuição-angular-e-degradação-energética)
-4. [Como Executar o Projeto](#-como-executar-o-projeto)
+1. [🔬 Fundamentação Teórica Expandida](#-fundamentação-teórica-expandida)
+    * [Cinemática do Transporte Macro-Micro](#cinemática-do-transporte-macro-micro)
+    * [O Efeito Fotoelétrico e Limites de Energia](#o-efeito-fotoelétrico-e-limites-de-energia)
+    * [Dedução Mecânico-Quântica do Espalhamento Compton](#dedução-mecânico-quântica-do-espalhamento-compton)
+    * [A Formulação de Klein-Nishina](#a-formulação-de-klein-nishina)
+2. [💻 Implementação Algorítmica](#-implementação-algorítmica)
+    * [Amostragem de Caminhos e Geometria](#amostragem-de-caminhos-e-geometria)
+3. [📊 Análise Avançada de Resultados e Imagens](#-análise-avançada-de-resultados-e-imagens)
+    * [Consolidação Numérica de Saída](#consolidação-numérica-de-saída)
+    * [Figura 1: Distribuição Espacial de Dose (Isodose)](#figura-1-distribuição-espacial-de-dose-isodose)
+    * [Figura 2: Validação Estatística Angular](#figura-2-validação-estatística-angular)
+    * [Figura 3: Espectroscopia de Fótons e Contínuo Compton](#figura-3-espectroscopia-de-fótons-e-contínuo-compton)
+4. [🛠️ Guia de Execução](#%EF%B8%8F-guia-de-execução)
 
 ---
 
-## 🔬 Fundamentação Teórica
+## 🔬 Fundamentação Teórica Expandida
 
-### Coeficiente de Atenuação Linear
-O transporte macroscópico de fótons através da matéria é probabilisticamente governado pelo coeficiente de atenuação linear total $\mu(E, Z)$, que representa a probabilidade de interação por unidade de comprimento. Na faixa energética avaliada ($10 \text{ keV}$ a $150 \text{ keV}$), as interações dominantes são expressas por:
+### Cinemática do Transporte Macro-Micro
+O deslocamento de um fóton em um meio material condensado é um processo puramente probabilístico descrito pela Teoria do Transporte de Partículas. O coeficiente de atenuação linear total $\mu(E, Z)$ define a probabilidade de uma partícula sofrer *qualquer* tipo de colisão por unidade de comprimento (geralmente expresso em $\text{cm}^{-1}$). 
 
-$$\mu(E, Z) = \tau(E, Z) + \sigma(E, Z)$$
+Quando um feixe com $N_0$ fótons incide em uma espessura $x$, o número de fótons que atravessam sem interagir segue a Lei de Beer-Lambert:
+$$N(x) = N_0 \cdot e^{-\mu x}$$
 
-Onde $\tau$ representa o coeficiente para o efeito fotoelétrico e $\sigma$ denota o coeficiente para o espalhamento Compton.
+No nível microscópico de simulação individual (Histórico de Monte Carlo), a distância linear $s$ percorrida por um fóton entre dois vértices consecutivos de interação (Livre Caminho Médio Estocástico) é calculada igualando a probabilidade acumulada a um número pseudoaleatório $U$ uniformemente distribuído no intervalo $(0,1)$:
+$$s = -\frac{\ln(U)}{\mu(E, Z)}$$
 
-### Efeito Fotoelétrico
-O efeito fotoelétrico é um processo de absorção total, onde o fóton incidente transfere toda a sua energia cinética para um elétron fortemente ligado das camadas mais internas do átomo (camadas $K$ ou $L$). A probabilidade de ocorrência por átomo é altamente dependente do número atômico ($Z$) do meio e inversamente proporcional à energia ($E$):
+### O Efeito Fotoelétrico e Limites de Energia
+O Efeito Fotoelétrico caracteriza a absorção total do fóton por um elétron ligado a uma das camadas orbitais internas do átomo (predominantemente a camada K). A energia do fóton incidente $E$ é completamente transferida: uma fração supera a energia de ligação do elétron ($B_e$) e o restante é convertido em energia cinética do fotoelétron ejetado ($E_c = E - B_e$).
 
-$$\tau \propto \frac{Z^4}{E^3}$$
+A seção de choque atômica para este processo ($\tau$) varia drasticamente com o número atômico do absorvedor ($Z$) e com a energia cinética do fóton:
+$$\tau \approx \text{Constante} \cdot \frac{Z^4}{E^3}$$
 
-### Espalhamento Compton Incoerente
-No espalhamento Compton, o fóton colide inelasticamente com um elétron periférico (considerado livre e em repouso). Aplicando as leis de conservação de momento linear quádruplo, a energia do fóton defletido $E'$ é dada pela clássica equação de Compton:
 
-$$E' = \frac{E}{1 + \frac{E}{m_e c^2}(1 - \cos\theta)}$$
 
-Onde $m_e c^2 = 511.0 \text{ keV}$ é a energia de repouso do elétron e $\theta$ é o ângulo polar de espalhamento.
+Devido à dependência com $Z^4$, o efeito fotoelétrico é o mecanismo primário de contraste em radiologia médica (diferenciando estruturas ósseas de tecidos moles) e eficiência de blindagens radiológicas. Contudo, em meios de baixo número atômico como a água ($Z_{\text{ef}} \approx 7.4$), a probabilidade de absorção fotoelétrica decai exponencialmente para energias superiores a $50 \text{ keV}$, cedendo a dominância estatística ao efeito Compton.
 
-### Seção de Choque de Klein-Nishina
-A distribuição probabilística do ângulo polar $\theta$ é rigorosamente descrita pela **Seção de Choque Diferencial de Klein-Nishina (SDKN)**, derivada a partir da eletrodinâmica quântica relativística utilizando a equação de Dirac:
+### Dedução Mecânico-Quântica do Espalhamento Compton
+O espalhamento Compton ocorre quando um fóton colide com um elétron considerado livre e em repouso (elétrons de valência cujas energias de ligação são desprezíveis frente à energia do fóton incidente). 
+
+
+
+Ao aplicar a conservação do momentum linear relativístico $\vec{p}$ e da energia total $E$ no sistema bidimensional formado pelo fóton defletido em um ângulo polar $\theta$ e pelo elétron de recuo projetado em um ângulo $\psi$, obtém-se a consagrada relação de degradação do comprimento de onda de Compton ($\lambda' - \lambda$):
+$$\lambda' - \lambda = \frac{h}{m_e c}(1 - \cos\theta)$$
+
+Convertendo comprimentos de onda para unidades de energia ($E = hc/\lambda$), a energia do fóton pós-espalhamento ($E'$) assume a forma matemática:
+$$E' = \frac{E}{1 + \epsilon(1 - \cos\theta)}$$
+
+Onde $\epsilon = \frac{E}{m_e c^2}$ representa a energia reduzida do fóton em unidades de energia de repouso do elétron ($m_e c^2 = 511.0 \text{ keV}$). A energia cinética transferida ao elétron de recuo, que constitui a dose depositada localmente no voxel da colisão, é dada por:
+$$T_e = E - E' = E \left[ \frac{\epsilon(1 - \cos\theta)}{1 + \epsilon(1 - \cos\theta)} \right]$$
+
+### A Formulation de Klein-Nishina
+Embora a cinemática angular seja determinística pelas leis de conservação, a probabilidade física de o fóton ser defletido em um ângulo específico $\theta$ por unidade de ângulo sólido ($d\Omega$) exige o tratamento quântico relativístico da equação de Dirac. Desenvolvida por Oskar Klein e Yoshio Nishina, a seção de choque diferencial por elétron livre é expressa como:
 
 $$\frac{d\sigma_{KN}}{d\Omega} = \frac{r_e^2}{2} \left(\frac{E'}{E}\right)^2 \left[ \frac{E'}{E} + \frac{E}{E'} - \sin^2\theta \right]$$
 
-Onde $r_e = 2.817 \times 10^{-13} \text{ cm}$ é o raio clássico do elétron. O ângulo azimutal $\phi$ possui simetria cilíndrica e é distribuído uniformemente entre $0$ e $2\pi$.
+Onde $r_e = 2.817 \times 10^{-13} \text{ cm}$ é o raio clássico do elétron. À medida que a energia incidente $E$ cresce, a distribuição angular perde sua característica de simetria simétrica (fórmula de espalhamento Thomson clássica) e projeta-se fortemente em direção frontal (ângulos agudos).
 
 ---
 
-## 💻 Arquitetura do Código
+## 💻 Implementação Algorítmica
 
-O simulador foi construído em Python utilizando programação orientada a objetos (POO) combinada com processamento matemático vetorizado via `numpy`.
-
-### Modelagem de Materiais
-A classe `Material` encapsula as propriedades físicas dos alvos simulados obtidos a partir das bases de dados do NIST:
-
-```python
-class Material:
-    def __init__(self, name, density, atomic_number, mu_total):
-        self.name = name
-        self.density = density                # g/cm³
-        self.atomic_number = atomic_number    # Z efetivo
-        self.mu_total = mu_total              # cm⁻¹
+O fluxograma operacional do código segue o rastreamento individual de históricos até que critérios de corte geométricos ou energéticos sejam satisfeitos.
