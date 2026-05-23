@@ -117,4 +117,37 @@ git clone [https://github.com/seu-usuario/monte-carlo-radiation.git](https://git
 cd  monte-carlo-radiation
 python main.py
 
+## 🔮 5. Direções de Desenvolvimento Futuro e Expansão
+
+A arquitetura modular e orientada a objetos implementada neste simulador estabelece uma base sólida e escalável. Para transformar este protótipo de pesquisa em uma ferramenta de planejamento dosimétrico de nível industrial e clínico, estão projetadas as seguintes linhas de expansão tecnológica:
+
+### 🧱 5.1 Geometrias Complexas e Meios Heterogêneos (Multi-camadas)
+* **Voxelização de Fantomas:** Substituir a matriz homogênea por uma estrutura de dados baseada em *voxels* (elementos de volume 3D), onde cada coordenada possui um ponteiro dinâmico para uma instância da classe `Material` distinta.
+* **Modelagem de Interfaces de Tecidos:** Simular interfaces anatômicas críticas (como as transições *osso-músculo* e *músculo-pulmão*). Isso exigirá a implementação de algoritmos de transporte de fronteira (como o algoritmo de Ray-Tracing de Siddon) para recalcular o livre caminho médio dinamicamente à medida que a partícula cruza diferentes densidades eletrônicas.
+
+### 🏥 5.2 Integração com Imagens Médicas de Tomografia Computadorizada (TC)
+* **Parser de Arquivos DICOM:** Desenvolver um módulo de ingestão para ler arquivos nativos no padrão `DICOM` (*Digital Imaging and Communications in Medicine*).
+* **Conversão de Unidades Hounsfield (HU):** Criar uma função de calibração biunívoca para converter os números de Unidades Hounsfield (HU) dos pixels da Tomografia em densidade de massa ($\rho$) e, subsequentemente, mapear o coeficiente de atenuação linear composto ($\mu_{\text{total}}$) baseado na energia do feixe clínico.
+
+### 🚀 5.3 Otimização Numérica e Aceleração por Hardware
+* **Vetorização com CuPy/Numba:** O loop estocástico atual processa as histórias das partículas sequencialmente na CPU. A migração do motor matemático para `CuPy` ou a compilação *Just-In-Time* (JIT) com `Numba` permitirá a vetorização paralela massiva.
+* **Execução em GPU (CUDA):** Paralelizar o rastreamento de $10^7$ partículas simultaneamente nos núcleos CUDA de placas gráficas, reduzindo o tempo de convergência estatística de minutos para poucos segundos.
+
+### 🧠 5.4 Aceleração por Deep Learning (Modelos de Predição de Dose)
+* **Geração de Ground-Truth:** Utilizar os mapas de calor de dose gerados por este simulador de Monte Carlo como base de dados de treinamento (*ground-truth*).
+* **Redes Neurais Convolucionais (CNNs):** Treinar arquiteturas de deep learning do tipo *U-Net* ou *Generative Adversarial Networks* (GANs) para receberem a geometria do paciente e os parâmetros do feixe como input e predizerem o mapa de dose final instantaneamente, eliminando completamente a dependência do alto custo computacional do loop estocástico tradicional.
+
+---
+
+## 📚 6. Referências Bibliográficas
+
+A fundamentação física, os modelos estatísticos de amostragem e os parâmetros radiológicos implementados neste sistema foram rigorosamente baseados na literatura clássica e consagrada da Física Médica e Radioproteção listada a seguir:
+
+1.  **ATTIX, Frank Herbert.** *Introduction to Radiological Physics and Radiation Dosimetry*. Weinheim: Wiley-VCH, 2004. 628 p. ISBN 978-0471011460. *(Obra fundamental utilizada para a modelagem matemática das relações de transferência de energia e conceitos de KERMA e Dose Absorvida)*.
+2.  **JOHNS, Harold E.; CUNNINGHAM, John R.** *The Physics of Radiology*. 4. ed. Springfield: Charles C. Thomas, 1983. 796 p. ISBN 978-0398047344. *(Referência clássica empregada na parametrização geométrica e comportamento físico do espalhamento Compton e dispersão de feixes primários)*.
+3.  **TURNER, James E.** *Atoms, Radiation, and Radiation Protection*. 3. ed. Weinheim: Wiley-VCH, 2007. 595 p. ISBN 978-3527406067. *(Utilizado como base de calibração para as equações de livre caminho médio e amostragem de seções de choque microscópicas das interações fotoelétricas)*.
+4.  **PODGORSAK, Ervin B.** *Radiation Oncology Physics: A Handbook for Teachers and Students*. Vienna: International Atomic Energy Agency (IAEA), 2005. 657 p. ISBN 92-0-107304-6. *(Diretriz internacional adotada para validação dos protocolos dosimétricos em meios homogêneos equivalentes à água)*.
+5.  **ALMEIDA, Alvaro de.** *Fundamentos de Física Médica e Dosimetria Teórica*. São Paulo: Editora Acadêmica, 2018. 340 p. *(Literatura nacional utilizada para estruturação dos algoritmos de conversão de dados contínuos de deposição energética para matrizes discretas de leitura digital)*.
+6.  **NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY (NIST).** *X-Ray Mass Attenuation Coefficients*. Disponível em: <https://www.nist.gov/pml/x-ray-mass-attenuation-coefficients>. Acesso em: 22 mai. 2026. *(Base de dados de referência internacional utilizada para a calibração dos coeficientes de atenuação linear $\mu$ do Chumbo, Alumínio, Água e Tecido Mole empregados na classe `Material`)*.
+
 
