@@ -185,3 +185,5 @@ O simulador foi projetado para rodar em ambientes Python 3.8 ou superior. A comp
 Para instalar todas as dependências de uma só vez via terminal, execute:
 ```bash
 pip install numpy pandas matplotlib seaborn tqdm
+
+python radiation_pro_simulation.py
