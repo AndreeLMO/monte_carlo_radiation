@@ -103,3 +103,21 @@ O fluxograma operacional do código segue o rastreamento individual de históric
 │         - Não -> [Loop: Atualizar E = E' e Voltar ao Cálculo de μ]
 ▼
 [Fim do Histórico] -> Próxima Partícula
+
+---
+
+## 📁 Estrutura de Pastas e Inserção de Imagens
+
+O código em Python gera e salva os gráficos automaticamente utilizando caminhos relativos. Para garantir que as figuras apareçam perfeitamente neste documento, certifique-se de que a estrutura do seu repositório no GitHub siga o padrão abaixo após a execução:
+
+```text
+meu-repositorio/
+├── README.md
+├── radiation_pro_simulation.py
+└── outputs/
+    ├── datasets/
+    │   └── dados_simulados.csv
+    └── images/
+        ├── mapa_dose_isodose.png
+        ├── histograma_angular.png
+        └── espectro_energia.png
