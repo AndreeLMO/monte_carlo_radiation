@@ -186,4 +186,26 @@ Para instalar todas as dependências de uma só vez via terminal, execute:
 ```bash
 pip install numpy pandas matplotlib seaborn tqdm
 
-python radiation_pro_simulation.py
+---
+
+## 5. Conclusão
+
+O desenvolvimento deste simulador de Monte Carlo demonstrou a viabilidade e a alta fidelidade da modelagem estocástica nativa em Python para o transporte de fótons na faixa de energias do radiodiagnóstico clínico. Ao implementar a amostragem exata da seção de choque diferencial de Klein-Nishina por inversão numérica discreta, o algoritmo superou as limitações comuns de modelos que utilizam aproximações isotrópicas ou analíticas simplificadas.
+
+Os resultados obtidos alinham-se perfeitamente com os fundamentos da física radiológica:
+* A dominância absoluta do espalhamento Compton na faixa de $120 \text{ keV}$ validou a dependência matemática da seção de choque com o número atômico efetivo do meio absorvedor ($Z = 7$ para a água).
+* O mapa espacial de deposição de dose ($DoseMap$) registrou com precisão o gradiente de energia transferida aos elétrons de recuo, evidenciando o confinamento radial provocado pelo encurtamento do Livre Caminho Médio à medida que a energia dos fótons degrada.
+* A análise espectroscópica reproduziu fielmente a assinatura física do contínuo de Compton e o pico de retroespalhamento cinemático próximo à faixa de $40 \text{ keV} - 50 \text{ keV}$.
+
+A arquitetura modular e orientada a objetos provou ser altamente escalável, estabelecendo uma base sólida para futuras expansões. A inclusão de fenômenos adicionais (como a amostragem de raios X característicos, transições por efeito fotoelétrico detalhadas com emissão de elétrons Auger e o transporte em geometrias heterogêneas multifásicas) constitui o desdobramento natural para a evolução deste projeto em direção a simulações de dosimetria clínica ainda mais complexas.
+
+---
+
+## 6. Referências Bibliográficas
+
+1. **ATTIX, F. H.** *Introduction to Radiological Physics and Radiation Dosimetry*. New York: John Wiley & Sons, 1986.
+2. **BIELAJEW, A. F.** *Fundamentals of the Monte Carlo method for radiation transport*. Ann Arbor: University of Michigan, 2001.
+3. **JOHNS, H. E.; CUNNINGHAM, J. R.** *The Physics of Radiology*. 4. ed. Springfield: Charles C. Thomas, 1983.
+4. **KLEIN, O.; NISHINA, Y.** Über die Streuung von Strahlung durch freie Elektronen nach der neuen relativistischen Quantendynamik von Dirac. *Zeitschrift für Physik*, v. 52, n. 11, p. 853-868, 1929.
+5. **PODGORSAK, E. B.** *Radiation Physics for Medical Physicists*. Berlin: Springer-Verlag, 2010.
+6. **TURNER, J. E.** *Atoms, Radiation, and Radiation Protection*. 3. ed. Weinheim: Wiley-VCH, 2007.
