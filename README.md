@@ -106,10 +106,6 @@ Após o processamento estatístico completo de **50.000 histórias de partícula
 ---
 ## 🚀 4. Como Executar o Projeto
 
-### 📋 Pré-requisitos
-Certifique-se de que possui o Python 3.8 ou superior instalado no seu sistema, juntamente com o ecossistema básico de bibliotecas científicas:
-
-```bash
 pip install numpy pandas matplotlib seaborn
 
 git clone [https://github.com/seu-usuario/monte-carlo-radiation.git](https://github.com/seu-usuario/monte-carlo-radiation.git)
