@@ -105,18 +105,6 @@ Após o processamento estatístico completo de **50.000 histórias de partícula
 
 ---
 
-## 🚀 4. Como Executar o Projeto
-
-### 📋 Pré-requisitos
-Certifique-se de que possui o Python 3.8 ou superior instalado no seu sistema, juntamente com o ecossistema básico de bibliotecas científicas:
-
-```bash
-pip install numpy pandas matplotlib seaborn
-
-git clone [https://github.com/seu-usuario/monte-carlo-radiation.git](https://github.com/seu-usuario/monte-carlo-radiation.git)
-cd  monte-carlo-radiation
-python main.py
-
 ## 🔮 5. Direções de Desenvolvimento Futuro e Expansão
 
 A arquitetura modular e orientada a objetos implementada neste simulador estabelece uma base sólida e escalável. Para transformar este protótipo de pesquisa em uma ferramenta de planejamento dosimétrico de nível industrial e clínico, estão projetadas as seguintes linhas de expansão tecnológica:
@@ -151,3 +139,14 @@ A fundamentação física, os modelos estatísticos de amostragem e os parâmetr
 6.  **NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY (NIST).** *X-Ray Mass Attenuation Coefficients*. Disponível em: <https://www.nist.gov/pml/x-ray-mass-attenuation-coefficients>. Acesso em: 22 mai. 2026. *(Base de dados de referência internacional utilizada para a calibração dos coeficientes de atenuação linear $\mu$ do Chumbo, Alumínio, Água e Tecido Mole empregados na classe `Material`)*.
 
 
+## 🚀 4. Como Executar o Projeto
+
+### 📋 Pré-requisitos
+Certifique-se de que possui o Python 3.8 ou superior instalado no seu sistema, juntamente com o ecossistema básico de bibliotecas científicas:
+
+```bash
+pip install numpy pandas matplotlib seaborn
+
+git clone [https://github.com/seu-usuario/monte-carlo-radiation.git](https://github.com/seu-usuario/monte-carlo-radiation.git)
+cd  monte-carlo-radiation
+python main.py
