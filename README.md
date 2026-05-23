@@ -121,6 +121,9 @@ meu-repositorio/
         ├── mapa_dose_isodose.png
         ├── histograma_angular.png
         └── espectro_energia.png
+
+---
+
 # 4. Resultados e Discussão
 
 [cite_start]A simulação de Monte Carlo foi executada utilizando $30.000$ partículas (fótons) com uma energia inicial de $120.0, \text{keV}$. [cite_start]O transporte de radiação avaliou os perfis de deposição de energia e dinâmica de colisão para quatro materiais distintos de interesse radiológico e de blindagem: Água ($H_2O$), Tecido Humano, Alumínio ($Al$) e Chumbo ($Pb$)[cite: 2].
