@@ -175,17 +175,6 @@ O monitoramento da degradação da energia cinemática das partículas ao longo 
 * **O Contínuo de Compton:** Abaixo de $120 \text{ keV}$, o gráfico exibe um amplo patamar contínuo (platô) distribuído majoritariamente na faixa entre $30 \text{ keV}$ e $90 \text{ keV}$. Este perfil reconstrói numericamente a assinatura física clássica do contínuo de Compton, mapeando os fótons secundários que perderam frações variáveis de sua energia original após múltiplos choques com os elétrons periféricos.
 * **Pico de Retroespalhamento Cinemático:** Entre $40 \text{ keV}$ e $50 \text{ keV}$, o espectro exibe uma acumulação local pronunciada. Pela cinemática relativística de Compton, fótons que sofrem colisões severas em ângulos obtusos tendem a decair para um limite energético inferior teoricamente fixo. O surgimento deste pico no gráfico comprova que o código modelou com sucesso o acúmulo de radiação secundária degradada de baixa energia.
 
-* ---
-
-## 5. Guia de Execução e Uso
-
-### 5.1. Pré-requisitos e Dependências
-O simulador foi projetado para rodar em ambientes Python 3.8 ou superior. A computação vetorial e a renderização dos gráficos dependem das principais bibliotecas do ecossistema científico do Python. 
-
-Para instalar todas as dependências de uma só vez via terminal, execute:
-```bash
-pip install numpy pandas matplotlib seaborn tqdm
-
 ---
 
 ## 5. Conclusão
