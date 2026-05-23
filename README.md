@@ -68,3 +68,38 @@ Onde $r_e = 2.817 \times 10^{-13} \text{ cm}$ é o raio clássico do elétron. �
 ## 💻 Implementação Algorítmica
 
 O fluxograma operacional do código segue o rastreamento individual de históricos até que critérios de corte geométricos ou energéticos sejam satisfeitos.
+
+[Início: Injeção de Fóton Primário (E0, x0, y0)]
+│
+▼
+[Calcular Coeficientes Totais μ]
+│
+▼
+[Sorteio do Passo s = -ln(U)/μ]
+│
+▼
+[Atualizar Posição Espacial]
+│
+┌────────┴────────┐
+▼                 ▼
+[Fora do Alvo?]   [Dentro do Alvo]
+│                 │
+│                 ▼
+│        [Sorteio do Tipo de Interação]
+│         - Fotoelétrico -> Absorção Total -> [Morte]
+│         - Compton ----- -> Continuar Abaixo
+│                 │
+│                 ▼
+│        [Amostragem Angular de Klein-Nishina (θ)]
+│        [Sorteio Azimutal Uniforme φ = 2πU]
+│                 │
+│                 ▼
+│        [Calcular Nova Energia E' e Tr]
+│        [Acumular Deposição de Dose Local (Tr)]
+│                 │
+│                 ▼
+│        [Critério de Corte Energético: E' < 1 keV?]
+│         - Sim -> [Morte]
+│         - Não -> [Loop: Atualizar E = E' e Voltar ao Cálculo de μ]
+▼
+[Fim do Histórico] -> Próxima Partícula
