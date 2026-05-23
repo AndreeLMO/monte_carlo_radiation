@@ -112,3 +112,9 @@ Certifique-se de que possui o Python 3.8 ou superior instalado no seu sistema, j
 
 ```bash
 pip install numpy pandas matplotlib seaborn
+
+git clone [https://github.com/seu-usuario/monte-carlo-radiation.git](https://github.com/seu-usuario/monte-carlo-radiation.git)
+cd  monte-carlo-radiation
+python main.py
+
+
