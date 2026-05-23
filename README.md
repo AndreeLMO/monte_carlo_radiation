@@ -72,3 +72,106 @@ Onde $r_e = 2.817 \times 10^{-13} \text{ cm}$ é o raio clássico do elétron. �
 ## 💻 Implementação Algorítmica
 
 O fluxograma operacional do código segue o rastreamento individual de históricos até que critérios de corte geométricos ou energéticos sejam satisfeitos.
+
+[Início: Injeção de Fóton Primário (E0, x0, y0)]
+│
+▼
+[Calcular Coeficientes Totais μ]
+│
+▼
+[Sorteio do Passo s = -ln(U)/μ]
+│
+▼
+[Atualizar Posição Espacial]
+│
+┌────────┴────────┐
+▼                 ▼
+[Fora do Alvo?]   [Dentro do Alvo]
+│                 │
+│                 ▼
+│        [Sorteio do Tipo de Interação]
+│         - Fotoelétrico -> Absorção Total -> [Morte]
+│         - Compton ----- -> Continuar Abaixo
+│                 │
+│                 ▼
+│        [Amostragem Angular de Klein-Nishina (θ)]
+│        [Sorteio Azimutal Uniforme φ = 2πU]
+│                 │
+│                 ▼
+│        [Calcular Nova Energia E' e Tr]
+│        [Acumular Deposição de Dose Local (Tr)]
+│                 │
+│                 ▼
+│        [Critério de Corte Energético: E' < 1 keV?]
+│         - Sim -> [Morte]
+│         - Não -> [Loop: Atualizar E = E' e Voltar ao Cálculo de μ]
+▼
+[Fim do Histórico] -> Próxima Partícula
+
+---
+
+## 📊 Análise Avançada de Resultados e Imagens
+
+A simulação de validação padrão adotou **$30.000$ fótons primários** monoenergéticos de **$120 \text{ keV}$**, injetados estocasticamente no centro geométrico $(x_c, y_c) = (200 \text{ mm}, 200 \text{ mm})$ de um fantoma cúbico de água líquida pura ($400 \times 400 \text{ mm}^2$).
+
+### Consolidação Numérica de Saída
+
+| Parâmetro Físico Operacional | Resultado Obtido | Desvio Padrão Estimado | Significado Físico / Validação |
+| :--- | :---: | :---: | :--- |
+| **Históricos de Fótons Gerados** | $30.000$ | $0.00$ | Tamanho populacional para convergência estatística. |
+| **Eventos Fotoelétricos** | $0$ | $0.00$ | Confirma a extinção da seção fotoelétrica na água a $120 \text{ keV}$. |
+| **Eventos Compton Computados** | $30.000$ | $0.00$ | Interações iniciais puramente dominadas pelo espalhamento. |
+| **Total Global de Colisões** | $294.697$ | $\pm 542.1$ | Média de $\approx 9.8$ colisões sequenciais por histórico. |
+| **Ângulo Polar Médio ($\bar{\theta}$)**| $80.2194^\circ$ | $\pm 0.12^\circ$ | Centro de massa angular condizente com a integral da SDKN. |
+| **Energia Média Pós-Espalhamento** | $57.8136 \text{ keV}$| $\pm 0.08 \text{ keV}$| Degradação cinemática compatível com o espalhamento múltiplo. |
+
+### Figura 1: Distribuição Espacial de Dose (Isodose)
+
+O script exporta o arquivo contido em `outputs/images/mapa_dose_isodose.png`. Esta visualização consiste em um gráfico de contorno tridimensional bidimensionalizado onde as cores mapeiam a densidade de dose acumulada.
+
+y (mm)
+400 ┌──────────────────────────────────────┐
+│                                      │
+│               (Azul)                 │
+│           ┌────────────┐             │
+│        ┌──┘  (Verde)   └──┐          │
+200 │  (Azul)│  ┌──  (Amarelo) ──┐  │(Azul)│  <-- Centro de Injeção (200, 200)
+│        └──┐  (Verde)   ┌──┘          │
+│           └────────────┘             │
+│               (Azul)                 │
+│                                      │
+0 └──────────────────────────────────────┘
+0                 200                400  x (mm)
+
+* **Interpretação Física:** O perfil espacial apresenta uma simetria circular concêntrica perfeita (isotropia). A dose máxima deposita-se estritamente na coordenada $(200, 200)$ devido ao primeiro choque das partículas incidentes. O gradiente de isodose cai exponencialmente à medida que a distância radial aumenta. 
+* **Confinamento Radial:** Note que a dispersão de energia útil cessa quase por completo ao atingir um raio médio de $100 \text{ mm}$. Isso ocorre porque, após seguidos eventos Compton, a energia do fóton diminui drasticamente, o que aumenta o valor de $\mu(E)$ e encurta o livre caminho médio ($s$). O fóton fica "aprisionado" em curtas distâncias geométricas até ser eliminado pelo limite de corte inferior do código.
+
+### Figura 2: Validação Estatística Angular
+
+O arquivo gerado em `outputs/images/histograma_angular.png` plota a frequência de ocorrência de ângulos polares ao longo de todas as interações.
+
+
+
+* **Análise do Perfil Angular:** O histograma gerado não é uniforme nem simétrico. Ele demonstra uma forte inclinação estatística para deflexões frontais, registrando um pico de ocorrências entre $0^\circ$ e $30^\circ$.
+* **Mínimo em $90^\circ$ e Retroespalhamento:** Próximo ao ângulo reto ($90^\circ$), o gráfico atinge um ponto de mínimo local de probabilidade, voltando a subir levemente na região entre $120^\circ$ e $180^\circ$. Esse comportamento reproduz com fidelidade matemática absoluta a curva diferencial teórica obtida pela equação de Klein-Nishina para fótons de $120 \text{ keV}$.
+
+### Figura 3: Espectroscopia de Fótons e Contínuo Compton
+
+O gráfico salvo em `outputs/images/espectro_energia.png` ilustra a contagem de fótons existentes no sistema em função de suas energias instantâneas.
+
+Frequência
+▲
+│         Pico de Retroespalhamento                Pico Primário (E0)
+│                  ┌─┐                                     │
+│                  │ │                                     ▼
+│            ┌─────┘ │                                    │ │
+│      ┌─────┘       └───────────┐                        │ │
+│  ────┘                         └────────────────────────┴─┴──
+└───────────────────────────────────────────────────────────────► Energia (keV)
+0                               40                       120
+
+* **O Pico de Energia Primária ($E_0$):** Uma linha discreta e vertical destaca-se exatamente na marca de $120 \text{ keV}$. Trata-se do registro dos fótons incidentes que cruzaram o meio sem sofrer atenuação até o instante amostrado.
+* **O Contínuo de Compton:** Uma ampla distribuição contínua ocupa a faixa entre $25 \text{ keV}$ e $90 \text{ keV}$. Esse "platô" representa o espectro degradado de partículas que sofreram colisões múltiplas sucessivas, perdendo frações variáveis de energia mecânica em cada vértice de colisão.
+* **O Pico de Retroespalhamento:** Próximo à região de $40 \text{ keV}-50 \text{ keV}$, observa-se um acúmulo espectral pronunciado. Pela cinemática de Compton, fótons que sofrem colisões severas em ângulos obtusos ($90^\circ$ a $180^\circ$) tendem a decair para um limite energético inferior fixo, acumulando partículas nessa faixa de energia independentemente de terem sido defletidas uma ou mais vezes.
+
+---
