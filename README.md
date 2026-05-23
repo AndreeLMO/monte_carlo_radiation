@@ -104,6 +104,7 @@ graph TD
     style E fill:#fff59d,stroke:#fbc02d,stroke-width:2px,color:#000
     style H fill:#fff59d,stroke:#fbc02d,stroke-width:2px,color:#000
     style M fill:#fff59d,stroke:#fbc02d,stroke-width:2px,color:#000
+```mermaid
 ---
 ## 4. Análise de Resultados e Discussão
 
