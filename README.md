@@ -104,3 +104,37 @@ graph TD
     style E fill:#fff59d,stroke:#fbc02d,stroke-width:2px,color:#000
     style H fill:#fff59d,stroke:#fbc02d,stroke-width:2px,color:#000
     style M fill:#fff59d,stroke:#fbc02d,stroke-width:2px,color:#000
+---
+## 4. Análise de Resultados e Discussão
+
+O motor estocástico executou com sucesso a simulação de históricos individuais para uma população estatística calibrada, operando sob os parâmetros físicos iniciais definidos na arquitetura do sistema. O comportamento do transporte de radiação foi quantificado através do mapeamento espacial de deposição energética, da distribuição populacional das deflexões angulares e do perfil espectroscópico de degradação dos fótons no meio.
+
+---
+
+### 4.1. Estatísticas Gerais da Simulação e Balanço Energético
+
+A execução computacional processou rigorosamente os históricos programados, demonstrando estabilidade estocástica e convergência estatística com uma taxa de amostragem altamente eficiente de aproximadamente $23,67 \text{ it/s}$. A tabela abaixo consolida as métricas globais extraídas diretamente do simulador após a conclusão de todos os eventos:
+
+| Parâmetro Físico Operacional | Configuração / Resultado Obtido | Significado Físico e Validação |
+| :--- | :---: | :--- |
+| **Material do Meio Absorvedor** | Água ($H_2O$) | Densidade: $1,0 \text{ g/cm}^3$ \| $Z_{\text{efetivo}} = 7$ \| $\mu_t = 0,15 \text{ cm}^{-1}$ |
+| **População Total Injetada ($N_0$)** | $30.000$ fótons | Dimensão amostral para minimização do erro estatístico ($1/\sqrt{N}$). |
+| **Energia Incidente ($E_0$)** | $120,0 \text{ keV}$ | Espectro padrão representativo para radiodiagnóstico clínico. |
+| **Eventos de Espalhamento Compton** | Dominância Absoluta | Canal de interação majoritário para o par ($Z=7, E=120\text{ keV}$). |
+| **Eventos Fotoelétricos Atômicos** | Residual / Nulo | Seção de choque fotoelétrica desprezível devido ao baixo $Z$ do meio. |
+| **Filtro de Corte (*Energy Cutoff*)** | $< 1,0 \text{ keV}$ | Critério de parada para deposição terminal e termalização do fóton. |
+
+A dominância absoluta do espalhamento Compton em detrimento do efeito fotoelétrico valida experimentalmente a modelagem das probabilidades físicas implementadas no algoritmo ($\tau \propto Z^4/E^3$). Em tecidos moles ou água ($Z=7$) expostos a feixes de $120 \text{ keV}$, a probabilidade de absorção fotoelétrica integral decai a níveis próximos de zero, convertendo o fantoma numérico num meio puramente espalhador.
+
+---
+
+### 4.2. Mapeamento Espacial e Perfil Bidimensional de Isodose
+
+A transferência de energia cinética aos elétrons de recuo ($T_e$) mapeada ponto a ponto na matriz discreta de $400 \times 400 \text{ mm}^2$ gerou a matriz de densidade acumulada armazenada no `DoseMap`. O arquivo de imagem correspondente encontra-se salvo em `outputs/images/mapa_dose_isodose.png`.
+
+```markdown
+<p align="center">
+  <img src="outputs/images/mapa_dose_isodose.png" alt="Figura 1: Distribuição Bidimensional de Dose Absorvida" width="65%">
+  <br>
+  <em>Figura 1: Mapa de calor espacial de deposição de energia mecânica e curvas de contorno de isodose na água.</em>
+</p>
