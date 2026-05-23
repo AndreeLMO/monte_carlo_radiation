@@ -139,3 +139,8 @@ A transferência de energia cinética aos elétrons de recuo ($T_e$) mapeada pon
   <br>
   <em>Figura 1: Mapa de calor espacial de deposição de energia mecânica e curvas de contorno de isodose na água.</em>
 </p>
+<p align="center">
+  <img src="outputs/images/histograma_angular.png" alt="Figura 2: Histograma e Validação da Distribuição Angular" width="60%">
+  <br>
+  <em>Figura 2: Análise de frequência dos ângulos polares sorteados sobreposta à curva teórica de Klein-Nishina.</em>
+</p>
