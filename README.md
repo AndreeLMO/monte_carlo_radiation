@@ -1,145 +1,101 @@
 # Simulação de Monte Carlo para Transporte de Radiação: Modelo Klein-Nishina Real
 
 [![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Physics](https://img.shields.io/badge/physics-Medical%20%7C%20Radiological-red.svg)]()
-
-Este repositório hospeda o desenvolvimento de um simulador estocástico nativo em Python projetado para modelar o transporte, espalhamento e deposição de energia (dose) de fótons na faixa de energias de radiodiagnóstico e tomografia computadorizada ($10 \text{ keV}$ a $150 \text{ keV}$) em meios condensados homogêneos. O núcleo analítico do algoritmo realiza a amostragem estocástica exata da **Seção de Choque Diferencial de Klein-Nishina** através da inversão numérica da Função de Distribuição Acumulada (FDA), superando aproximações analíticas simplificadas (como Henyey-Greenstein) comumente aplicadas na literatura.
-
----
-
-## 📋 Sumário
-1. [🔬 Fundamentação Teórica Expandida](#-fundamentação-teórica-expandida)
-    * [Cinemática do Transporte Macro-Micro](#cinemática-do-transporte-macro-micro)
-    * [O Efeito Fotoelétrico e Limites de Energia](#o-efeito-fotoelétrico-e-limites-de-energia)
-    * [Dedução Mecânico-Quântica do Espalhamento Compton](#dedução-mecânico-quântica-do-espalhamento-compton)
-    * [A Formulação de Klein-Nishina](#a-formulação-de-klein-nishina)
-2. [💻 Implementação Algorítmica](#-implementação-algorítmica)
-    * [Amostragem de Caminhos e Geometria](#amostragem-de-caminhos-e-geometria)
-3. [📊 Análise Avançada de Resultados e Imagens](#-análise-avançada-de-resultados-e-imagens)
-    * [Consolidação Numérica de Saída](#consolidação-numérica-de-saída)
-    * [Figura 1: Distribuição Espacial de Dose (Isodose)](#figura-1-distribuição-espacial-de-dose-isodose)
-    * [Figura 2: Validação Estatística Angular](#figura-2-validação-estatística-angular)
-    * [Figura 3: Espectroscopia de Fótons e Contínuo Compton](#figura-3-espectroscopia-de-fótons-e-contínuo-compton)
-4. [🛠️ Guia de Execução](#%EF%B8%8F-guia-de-execução)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 ---
 
-## 🔬 Fundamentação Teórica Expandida
+## 1. Introdução
 
-### Cinemática do Transporte Macro-Micro
-O deslocamento de um fóton em um meio material condensado é um processo puramente probabilístico descrito pela Teoria do Transporte de Partículas. O coeficiente de atenuação linear total $\mu(E, Z)$ define a probabilidade de uma partícula sofrer *qualquer* tipo de colisão por unidade de comprimento (geralmente expresso em $\text{cm}^{-1}$). 
+O transporte de partículas ionizantes em meios condensados constitui o pilar fundamental da física médica, radioproteção e engenharia nuclear. Na faixa de energias correspondente ao radiodiagnóstico e à tomografia computadorizada ($10 \text{ keV}$ a $150 \text{ keV}$), a modelagem matemática exata da deposição de dose e da radiação espalhada secundária é crucial para a otimização de blindagens e cálculos dosimétricos clínicos.
 
-Quando um feixe com $N_0$ fótons incide em uma espessura $x$, o número de fótons que atravessam sem interagir segue a Lei de Beer-Lambert:
-$$N(x) = N_0 \cdot e^{-\mu x}$$
+Os métodos analíticos tradicionais para resolver a Equação de Transporte de Boltzmann apresentam limitações severas ao lidar com geometrias complexas e meios heterogêneos. Como alternativa, o **Método de Monte Carlo** consolidou-se como o padrão-ouro (*gold standard*) na física das radiações. Trata-se de uma abordagem estocástica onde o histórico de milhares de partículas individuais é rastreado probabilisticamente através da amostragem de funções de distribuição de probabilidade baseadas em seções de choque microscópicas reais.
 
-No nível microscópico de simulação individual (Histórico de Monte Carlo), a distância linear $s$ percorrida por um fóton entre dois vértices consecutivos de interação (Livre Caminho Médio Estocástico) é calculada igualando a probabilidade acumulada a um número pseudoaleatório $U$ uniformemente distribuído no intervalo $(0,1)$:
-$$s = -\frac{\ln(U)}{\mu(E, Z)}$$
+Nesta faixa de energia diagnóstica, dois efeitos competitivos dominam a atenuação de fótons: o **Efeito Fotoelétrico** e o **Espalhamento Compton**. Enquanto muitas simulações simplificadas utilizam aproximações analíticas para a distribuição angular (como a aproximação de Henyey-Greenstein), este projeto implementa um simulador nativo em Python que realiza a amostragem exata da **Seção de Choque Diferencial de Klein-Nishina**, capturando a anisotropia real do espalhamento quântico-relativístico.
 
-### O Efeito Fotoelétrico e Limites de Energia
-O Efeito Fotoelétrico caracteriza a absorção total do fóton por um elétron ligado a uma das camadas orbitais internas do átomo (predominantemente a camada K). A energia do fóton incidente $E$ é completamente transferida: uma fração supera a energia de ligação do elétron ($B_e$) e o restante é convertido em energia cinética do fotoelétron ejetado ($E_c = E - B_e$).
+---
 
-A seção de choque atômica para este processo ($\tau$) varia drasticamente com o número atômico do absorvedor ($Z$) e com a energia cinética do fóton:
-$$\tau \approx \text{Constante} \cdot \frac{Z^4}{E^3}$$
+## 2. Fundamentação Teórica
 
+### 2.1. Cinemática do Transporte Macro-Micro
+A probabilidade de um fóton interagir com o meio material por unidade de comprimento é quantificada pelo coeficiente de atenuação linear total, $\mu_t(E, Z)$, expresso em $\text{cm}^{-1}$. Matematicamente, a atenuação macroscópica de um feixe monoenergético com $N_0$ fótons ao atravessar uma espessura espessa $x$ segue a Lei de Beer-Lambert:
 
+$$N(x) = N_0 \cdot e^{-\mu_t(E, Z) x}$$
 
-Devido à dependência com $Z^4$, o efeito fotoelétrico é o mecanismo primário de contraste em radiologia médica (diferenciando estruturas ósseas de tecidos moles) e eficiência de blindagens radiológicas. Contudo, em meios de baixo número atômico como a água ($Z_{\text{ef}} \approx 7.4$), a probabilidade de absorção fotoelétrica decai exponencialmente para energias superiores a $50 \text{ keV}$, cedendo a dominância estatística ao efeito Compton.
+Em uma simulação de histórico individual (Monte Carlo), o livre caminho caminho percorrido por um fóton entre dois vértices consecutivos de colisão é uma variável aleatória contínua. Igualando a função de distribuição acumulada a um número pseudoaleatório $U$ uniformemente distribuído no intervalo $(0, 1]$, deduz-se a distância linear do passo estocástico ($s$):
 
-### Dedução Mecânico-Quântica do Espalhamento Compton
-O espalhamento Compton ocorre quando um fóton colide com um elétron considerado livre e em repouso (elétrons de valência cujas energias de ligação são desprezíveis frente à energia do fóton incidente). 
+$$s = -\frac{\ln(U)}{\mu_t(E, Z)}$$
 
+### 2.2. O Efeito Fotoelétrico e a Absorção Total
+O Efeito Fotoelétrico descreve o processo no qual um fóton incidente colide com um elétron fortemente ligado às camadas internas do átomo (predominantemente a camada K). O fóton transfere integralmente sua energia para o elétron, cessando sua existência. O fotoelétron é ejetado com energia cinética dada por:
 
+$$E_c = E - B_e$$
 
-Ao aplicar a conservação do momentum linear relativístico $\vec{p}$ e da energia total $E$ no sistema bidimensional formado pelo fóton defletido em um ângulo polar $\theta$ e pelo elétron de recuo projetado em um ângulo $\psi$, obtém-se a consagrada relação de degradação do comprimento de onda de Compton ($\lambda' - \lambda$):
-$$\lambda' - \lambda = \frac{h}{m_e c}(1 - \cos\theta)$$
+Onde $B_e$ é a energia de ligação orbital. A seção de choque atômica fotoelétrica ($\tau$) possui uma dependência crítica com o número atômico ($Z$) do meio absorvedor e com a energia cinética do fóton incidente ($E$):
 
-Convertendo comprimentos de onda para unidades de energia ($E = hc/\lambda$), a energia do fóton pós-espalhamento ($E'$) assume a forma matemática:
+$$\tau \propto \frac{Z^4}{E^3}$$
+
+Devido a essa dependência de quarta potência com $Z$, o efeito fotoelétrico é o mecanismo primário responsável pelo contraste em imagens radiográficas (distinguindo estruturas ósseas de tecidos moles) e pela alta eficiência de materiais densos como o chumbo em blindagens físicas.
+
+### 2.3. O Espalhamento Compton e a Formulação de Klein-Nishina
+O espalhamento Compton ocorre quando o fóton interage com um elétron considerado livre e em repouso (elétrons de valência com energia de ligação desprezível frente à energia do fóton). Ao aplicar a conservação do quadrimomentum relativístico no sistema bidimensional formado pela deflexão do fóton em um ângulo polar $\theta$ e o elétron de recuo em um ângulo $\psi$, obtém-se a relação cinemática para a energia do fóton pós-colisão ($E'$):
+
 $$E' = \frac{E}{1 + \epsilon(1 - \cos\theta)}$$
 
-Onde $\epsilon = \frac{E}{m_e c^2}$ representa a energia reduzida do fóton em unidades de energia de repouso do elétron ($m_e c^2 = 511.0 \text{ keV}$). A energia cinética transferida ao elétron de recuo, que constitui a dose depositada localmente no voxel da colisão, é dada por:
+Onde $\epsilon = \frac{E}{m_0 c^2}$ representa a energia reduzida do fóton em unidades da energia de repouso do elétron ($m_0 c^2 = 511,0 \text{ keV}$). A energia mecânica restante é transferida ao elétron sob a forma de energia cinética de recuo ($T_e$), que constitui a dose depositada localmente no meio absorvedor:
+
 $$T_e = E - E' = E \left[ \frac{\epsilon(1 - \cos\theta)}{1 + \epsilon(1 - \cos\theta)} \right]$$
 
-### A Formulation de Klein-Nishina
-Embora a cinemática angular seja determinística pelas leis de conservação, a probabilidade física de o fóton ser defletido em um ângulo específico $\theta$ por unidade de ângulo sólido ($d\Omega$) exige o tratamento quântico relativístico da equação de Dirac. Desenvolvida por Oskar Klein e Yoshio Nishina, a seção de choque diferencial por elétron livre é expressa como:
+A probabilidade física de o fóton ser defletido em um ângulo polar $\theta$ por unidade de ângulo sólido ($d\Omega$) é governada pela **Seção de Choque Diferencial de Klein-Nishina**, derivada através da mecânica quântica relativística da equação de Dirac:
 
 $$\frac{d\sigma_{KN}}{d\Omega} = \frac{r_e^2}{2} \left(\frac{E'}{E}\right)^2 \left[ \frac{E'}{E} + \frac{E}{E'} - \sin^2\theta \right]$$
 
-Onde $r_e = 2.817 \times 10^{-13} \text{ cm}$ é o raio clássico do elétron. À medida que a energia incidente $E$ cresce, a distribuição angular perde sua característica de simetria simétrica (fórmula de espalhamento Thomson clássica) e projeta-se fortemente em direção frontal (ângulos agudos).
+Onde $r_e = 2,817 \times 10^{-13} \text{ cm}$ é o raio clássico do elétron. À medida que a energia incidente $E$ se eleva, a distribuição angular perde sua característica de simetria simétrica (regida pelo espalhamento Thomson clássico) e projeta-se predominantemente em direção frontal (ângulos agudos).
 
 ---
 
-## 💻 Implementação Algorítmica
+## 3. Metodologia Computacional
 
-O fluxograma operacional do código segue o rastreamento individual de históricos até que critérios de corte geométricos ou energéticos sejam satisfeitos.
+### 3.1. Arquitetura do Simulador e Design de Software
+O simulador foi integralmente desenvolvido em Python 3.8+ utilizando o paradigma de Programação Orientada a Objetos (POO) combinada com computação vetorizada (`NumPy`) para otimização do processamento estocástico. A arquitetura divide-se nas seguintes entidades estruturais:
 
-## 💻 Fluxograma Operacional (Monte Carlo)
+* **`Material`**: Classe responsável por encapsular as propriedades físico-químicas do meio atenuador, incluindo densidade ($\rho$), número atômico ($Z$) e o coeficiente de atenuação total ($\mu_t$). O simulador conta com um banco de dados calibrado para quatro meios de interesse: Água ($H_2O$), Tecido Humano, Alumínio ($Al$) e Chumbo ($Pb$).
+* **`Photon`**: Classe que rastreia dinamicamente o estado físico de cada partícula individual. Controla os atributos de posição cartesiana bidimensional ($x, y$), energia instantânea ($E$), direção angular azimutal ($\phi$) e o histórico completo de seu vetor de trajetória e degradação energética.
+* **`DoseMap`**: Matriz bidimensional discreta acoplada que atua como um fantoma digital numérico, registrando e acumulando espacialmente a energia cinética cedida pelo fóton ($T_e$) a cada colisão nas coordenadas espaciais correspondentes.
+* **`MonteCarloSimulation`**: Motor controlador do loop estocástico. Gerencia o lançamento dos históricos de partículas, executa os sorteios probabilísticos e consolida a saída de dados brutos e estatísticos.
+
+### 3.2. Amostragem Numérica da Distribuição de Klein-Nishina
+Como a Função de Distribuição Acumulada (FDA) obtida a partir da integração da equação de Klein-Nishina não possui uma forma analítica inversível diretamente por métodos simples, o algoritmo resolve a amostragem angular de forma exata via **Inversão Numérica Discreta**. 
+
+A seção de choque diferencial é discretizada em um espaço de alta resolução ($1.000$ nós no intervalo $[0, \pi]$). A distribuição de probabilidade cumulativa é normalizada e mapeada numericamente, permitindo que o ângulo polar $\theta$ seja sorteado stocasticamente com base no perfil quântico real de Klein-Nishina para a energia exata daquela colisão. O ângulo azimutal ($\phi$) é tratado de forma isotrópica e amostrado uniformemente:
+
+$$\phi = 2\pi \cdot U_2, \quad U_2 \sim \mathcal{U}(0, 1)$$
+
+### 3.3. Algoritmo de Transporte e Critérios de Parada
+O fluxo operacional do transporte de cada fóton individual segue estritamente a cadeia de decisões lógicas mapeada abaixo:
 
 ```mermaid
 graph TD
-    A([Início: Injeção de Fóton Primário<br>E0, x0, y0]) --> B[Calcular Coeficientes Totais &mu;]
-    B --> C[Sorteio do Passo<br>s = -ln U / &mu;]
-    C --> D[Atualizar Posição Espacial]
-    D --> E{Fora do Alvo?}
-    
-    E -- Sim --> F([Fim do Histórico:<br>Próxima Partícula])
-    E -- Não --> G[Sorteio do Tipo de Interação]
-    
-    G --> H{Qual Interação?}
-    H -- Fotoelétrico --> I[Absorção Total]
-    I --> J([Morte da Partícula])
-    J --> F
-    
-    H -- Compton --> K[Amostragem Angular de Klein-Nishina &theta;<br>Sorteio Azimutal Uniforme &phi; = 2&pi;U]
-    K --> L[Calcular Nova Energia E' e Tr<br>Acumular Deposição de Dose Local Tr]
-    L --> M{Critério de Corte:<br>E' < 1 keV?}
-    
-    M -- Sim --> J
-    M -- Não --> N[Loop: Atualizar E = E']
-    N --> B
-    
-    %% Estilização para o gráfico ficar elegante no GitHub
-    style A fill:#64b5f6,stroke:#1565c0,stroke-width:2px,color:#000
-    style F fill:#90caf9,stroke:#1565c0,stroke-width:2px,color:#000
-    style J fill:#ef9a9a,stroke:#c62828,stroke-width:2px,color:#000
-    style E fill:#fff59d,stroke:#fbc02d,stroke-width:2px,color:#000
-    style H fill:#fff59d,stroke:#fbc02d,stroke-width:2px,color:#000
-    style M fill:#fff59d,stroke:#fbc02d,stroke-width:2px,color:#000
----
-
-## 4. Análise Avançada de Resultados e Discussão
-
-A simulação de validação padrão adotou um modelo estocástico rigoroso lançando **$30.000$ fótons primários** monoenergéticos com energia inicial de **$120,0 \text{ keV}$**. O ponto de injeção do feixe foi configurado estritamente no centro geométrico da matriz de transporte, correspondendo às coordenadas $(x_c, y_c) = (200 \text{ mm}, 200 \text{ mm})$, inserido num simulador cúbico (phantom) homogêneo de $400 \times 400 \text{ mm}^2$. 
-
-Abaixo, detalha-se a dinâmica operacional do algoritmo e a resposta físico-estatística do meio (Água líquida pura, $Z_{\text{ef}} \approx 7.4$).
-
----
-
-### 4.1. Fluxograma Operacional do Histórico de Partículas
-
-Para garantir a estabilidade e a reprodução fiel da física local sem perda de alinhamento textual no GitHub, o mapeamento lógico do transporte de cada histórico foi estruturado através da sintaxe nativa `mermaid`:
-
-```mermaid
-graph TD
-    A([Início: Injeção de Fóton Primário<br>E0 = 120 keV, x0=200, y0=200]) --> B[Calcular Coeficientes Totais &mu; E, Z]
+    A([Início: Injeção de Fóton Primário<br>E0, x0, y0]) --> B[Calcular Coeficientes Totais &mu; E, Z]
     B --> C[Sorteio do Passo Estocástico<br>s = -ln U / &mu;]
-    C --> D[Atualizar Posição Cartesiana]
-    D --> E{Fora dos Limites<br>do Alvo?}
+    C --> D[Atualizar Posição Espacial Cartesiana]
+    D --> E{Fora dos Limites<br>do Fantoma?}
     
     E -- Sim --> F([Fim do Histórico:<br>Contabilizar Fuga])
-    E -- Não --> G[Sorteio do Canal de Interação]
+    E -- Não --> G[Sorteio Probabilístico do Canal de Interação]
     
-    G --> H{Qual o Evento<br>Sorteado?}
+    G --> H{Qual Interação<br>Sorteada?}
     H -- Fotoelétrico --> I[Absorção Total da Energia]
     I --> J([Morte da Partícula])
     J --> F
     
-    H -- Compton --> K[Amostragem Angular Real de Klein-Nishina &theta;<br>Sorteio Azimutal Uniforme &phi; = 2&pi;U]
-    K --> L[Calcular Nova Energia E' e Tr<br>Acumular Deposição de Dose Local Tr]
-    L --> M{Critério de Corte<br>Energético: E' < 1 keV?}
+    H -- Compton --> K[Amostragem Angular Numérica de Klein-Nishina &theta;<br>Sorteio Azimutal Uniforme &phi; = 2&pi;U]
+    K --> L[Calcular Nova Energia E' e Tr<br>Acumular Deposição de Dose Local no DoseMap]
+    L --> M{Critério de Corte Energético:<br>E' < 1 keV?}
     
     M -- Sim --> J
-    M -- Não --> N[Loop: Atualizar E = E']
+    M -- Não --> N[Loop: Atualizar E = E' para Próxima Colisão]
     N --> B
     
     style A fill:#64b5f6,stroke:#1565c0,stroke-width:2px,color:#000
