@@ -72,3 +72,36 @@ Onde $r_e = 2.817 \times 10^{-13} \text{ cm}$ é o raio clássico do elétron. �
 ## 💻 Implementação Algorítmica
 
 O fluxograma operacional do código segue o rastreamento individual de históricos até que critérios de corte geométricos ou energéticos sejam satisfeitos.
+
+## 💻 Fluxograma Operacional (Monte Carlo)
+
+```mermaid
+graph TD
+    A([Início: Injeção de Fóton Primário<br>E0, x0, y0]) --> B[Calcular Coeficientes Totais &mu;]
+    B --> C[Sorteio do Passo<br>s = -ln U / &mu;]
+    C --> D[Atualizar Posição Espacial]
+    D --> E{Fora do Alvo?}
+    
+    E -- Sim --> F([Fim do Histórico:<br>Próxima Partícula])
+    E -- Não --> G[Sorteio do Tipo de Interação]
+    
+    G --> H{Qual Interação?}
+    H -- Fotoelétrico --> I[Absorção Total]
+    I --> J([Morte da Partícula])
+    J --> F
+    
+    H -- Compton --> K[Amostragem Angular de Klein-Nishina &theta;<br>Sorteio Azimutal Uniforme &phi; = 2&pi;U]
+    K --> L[Calcular Nova Energia E' e Tr<br>Acumular Deposição de Dose Local Tr]
+    L --> M{Critério de Corte:<br>E' < 1 keV?}
+    
+    M -- Sim --> J
+    M -- Não --> N[Loop: Atualizar E = E']
+    N --> B
+    
+    %% Estilização para o gráfico ficar elegante no GitHub
+    style A fill:#64b5f6,stroke:#1565c0,stroke-width:2px,color:#000
+    style F fill:#90caf9,stroke:#1565c0,stroke-width:2px,color:#000
+    style J fill:#ef9a9a,stroke:#c62828,stroke-width:2px,color:#000
+    style E fill:#fff59d,stroke:#fbc02d,stroke-width:2px,color:#000
+    style H fill:#fff59d,stroke:#fbc02d,stroke-width:2px,color:#000
+    style M fill:#fff59d,stroke:#fbc02d,stroke-width:2px,color:#000
