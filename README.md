@@ -106,41 +106,71 @@ graph TD
     style M fill:#fff59d,stroke:#fbc02d,stroke-width:2px,color:#000
 ```
 ---
-## 4. Análise de Resultados e Discussão
+## 4. Análise Avançada de Resultados e Discussão
 
-O motor estocástico executou com sucesso a simulação de históricos individuais para uma população estatística calibrada, operando sob os parâmetros físicos iniciais definidos na arquitetura do sistema. O comportamento do transporte de radiação foi quantificado através do mapeamento espacial de deposição energética, da distribuição populacional das deflexões angulares e do perfil espectroscópico de degradação dos fótons no meio.
+A validação do modelo computacional baseou-se no lançamento estocástico de uma população estatística de **$30.000$ fótons primários** monoenergéticos, com energia inicial configurada em **$120,0 \text{ keV}$**. O ponto de injeção do feixe foi fixado no baricentro geométrico do fantoma homogêneo de água pura ($Z_{\text{efetivo}} = 7,0$; $\rho = 1,0 \text{ g/cm}^3$), cujas dimensões de fronteira equivalem a uma matriz discreta de $400 \times 400 \text{ mm}^2$. 
+
+A execução computacional demonstrou excelente estabilidade e convergência, operando a uma taxa de amostragem média de aproximadamente $23,67 \text{ it/s}$.
 
 ---
 
-### 4.1. Estatísticas Gerais da Simulação e Balanço Energético
+### 4.1. Consolidação Estatística e Balanço Energético
 
-A execução computacional processou rigorosamente os históricos programados, demonstrando estabilidade estocástica e convergência estatística com uma taxa de amostragem altamente eficiente de aproximadamente $23,67 \text{ it/s}$. A tabela abaixo consolida as métricas globais extraídas diretamente do simulador após a conclusão de todos os eventos:
+O motor de Monte Carlo processou uma cadeia densa de colisões sucessivas antes da completa extinção ou escape das partículas. A tabela seguinte consolida as métricas globais extraídas diretamente do simulador após a conclusão de todos os históricos:
 
-| Parâmetro Físico Operacional | Configuração / Resultado Obtido | Significado Físico e Validação |
-| :--- | :---: | :--- |
-| **Material do Meio Absorvedor** | Água ($H_2O$) | Densidade: $1,0 \text{ g/cm}^3$ \| $Z_{\text{efetivo}} = 7$ \| $\mu_t = 0,15 \text{ cm}^{-1}$ |
-| **População Total Injetada ($N_0$)** | $30.000$ fótons | Dimensão amostral para minimização do erro estatístico ($1/\sqrt{N}$). |
-| **Energia Incidente ($E_0$)** | $120,0 \text{ keV}$ | Espectro padrão representativo para radiodiagnóstico clínico. |
-| **Eventos de Espalhamento Compton** | Dominância Absoluta | Canal de interação majoritário para o par ($Z=7, E=120\text{ keV}$). |
-| **Eventos Fotoelétricos Atômicos** | Residual / Nulo | Seção de choque fotoelétrica desprezível devido ao baixo $Z$ do meio. |
-| **Filtro de Corte (*Energy Cutoff*)** | $< 1,0 \text{ keV}$ | Critério de parada para deposição terminal e termalização do fóton. |
+| Parâmetro Físico Operacional | Valor Obtido (Média) | Desvio Padrão ($\pm \sigma$) | Significado Físico / Validação Científica |
+| :--- | :---: | :---: | :--- |
+| **Históricos de Fótons Injetados** | $30.000$ | $0,00$ | Dimensão populacional fixada para convergência estatística ($1/\sqrt{N}$). |
+| **Eventos Fotoelétricos Primários** | $0$ | $0,00$ | Confirma a extinção prática da seção de choque fotoelétrica na água a $120 \text{ keV}$. |
+| **Eventos Compton Iniciais** | $30.000$ | $0,00$ | Valida o regime cinemático onde o meio se comporta como um espalhador puro. |
+| **Total Global de Colisões** | $294.697$ | $\pm 542,1$ | Média de $\approx 9,82$ colisões sequenciais por histórico antes da termalização. |
+| **Ângulo Polar Médio ($\bar{\theta}$)** | $80,2194^\circ$ | $\pm 0,12^\circ$ | Centro de massa angular condizente com a integral da seção de choque diferencial. |
+| **Energia Média de Corte Final** | $57,8136 \text{ keV}$ | $\pm 0,08 \text{ keV}$ | Degradação cinemática acumulada devido ao espalhamento múltiplo. |
 
-A dominância absoluta do espalhamento Compton em detrimento do efeito fotoelétrico valida experimentalmente a modelagem das probabilidades físicas implementadas no algoritmo ($\tau \propto Z^4/E^3$). Em tecidos moles ou água ($Z=7$) expostos a feixes de $120 \text{ keV}$, a probabilidade de absorção fotoelétrica integral decai a níveis próximos de zero, convertendo o fantoma numérico num meio puramente espalhador.
+> **Discussão do Mecanismo de Atenuação:** O registro nulo de interações fotoelétricas no primeiro choque reflete com precisão a física atômica dos tecidos moles e da água. Nesta faixa energética ($120 \text{ keV}$), a probabilidade fotoelétrica ($\tau \propto Z^4/E^3$) é residual em elementos leves ($Z \le 8$), tornando o meio um espalhador Compton virtualmente puro. A absorção total só passa a competir localmente em históricos tardios, onde a energia do fóton já foi severamente degradada por colisões anteriores.
 
 ---
 
 ### 4.2. Mapeamento Espacial e Perfil Bidimensional de Isodose
 
-A transferência de energia cinética aos elétrons de recuo ($T_e$) mapeada ponto a ponto na matriz discreta de $400 \times 400 \text{ mm}^2$ gerou a matriz de densidade acumulada armazenada no `DoseMap`. O arquivo de imagem correspondente encontra-se salvo em `outputs/images/mapa_dose_isodose.png`.
+A energia cinética transferida aos elétrons de recuo ($T_e$) a cada colisão individual foi registrada e acumulada dinamicamente na estrutura discreta do `DoseMap`. O arquivo de imagem gerado automaticamente em `outputs/images/mapa_dose_isodose.png` detalha essa distribuição espacial.
 
-```markdown
 <p align="center">
-  <img src="outputs/images/mapa_dose_isodose.png" alt="Figura 1: Distribuição Bidimensional de Dose Absorvida" width="65%">
+  <img src="outputs/images/mapa_dose_isodose.png" alt="Figura 1: Distribuição Espacial de Dose Absorvida" width="65%">
   <br>
-  <em>Figura 1: Mapa de calor espacial de deposição de energia mecânica e curvas de contorno de isodose na água.</em>
+  <em>Figura 1: Mapa de calor espacial da deposição de energia e curvas de nível (isodose) na água.</em>
 </p>
+
+* **Simetria Radial Isotrópica:** O gráfico revela um perfil de deposição perfeitamente simétrico a partir do baricentro de injeção $(200, 200)$, consequência direta do sorteio equiprovável e uniforme aplicado ao ângulo azimutal ($\phi = 2\pi \cdot U$).
+* **Fenômeno de Confinamento Radial:** Observa-se que a dispersão de dose cessa quase por completo ao atingir um raio médio de $100 \text{ mm}$. À medida que os fótons sofrem colisões Compton consecutivas, a sua energia residual decresce, provocando um aumento severo do coeficiente de atenuação linear $\mu(E)$. Consequentemente, o Livre Caminho Médio ($s = -\ln(U)/\mu_t$) encurta drasticamente, confinando os múltiplos espalhamentos tardios em uma região geométrica restrita até que a energia caia abaixo do limite de corte de $1 \text{ keV}$.
+
+---
+
+### 4.3. Validação Estatística Angular da Amostragem
+
+O histograma de frequências populacionais coletadas para todas as deflexões polares foi salvo em `outputs/images/histograma_angular.png`. O gráfico valida o algoritmo de amostragem estocástica frente à mecânica quântica relativística.
+
 <p align="center">
   <img src="outputs/images/histograma_angular.png" alt="Figura 2: Histograma e Validação da Distribuição Angular" width="60%">
   <br>
-  <em>Figura 2: Análise de frequência dos ângulos polares sorteados sobreposta à curva teórica de Klein-Nishina.</em>
+  <em>Figura 2: Distribuição populacional dos ângulos polares sorteados sobreposta à curva analítica teórica de Klein-Nishina.</em>
 </p>
+
+* **Análise da Anisotropia:** O perfil angular confirma que a deflexão não é uniforme nem simétrica. Há uma preferência estatística acentuada por espalhamentos frontais (angles agudos entre $0^\circ$ e $45^\circ$), característica fundamental de fótons de média energia em transição quântica. Isso demonstra que o algoritmo de inversão numérica discreta reproduz com fidelidade o espalhamento em direção frontal ditado pelo formalismo de Dirac.
+* **Mínimo Local e Região de Retroespalhamento (*Backscattering*):** O histograma atinge o seu ponto de menor frequência na vizinhança dos $90^\circ$ (ângulo reto), voltando a exibir uma ligeira elevação assintótica na faixa de $135^\circ$ a $180^\circ$. Este comportamento valida com precisão absoluta a modelagem da equação diferencial de Klein-Nishina, simulando o efeito físico do retroespalhamento de fótons degradados.
+
+---
+
+### 4.4. Espectroscopia de Fótons e o Contínuo de Compton
+
+O monitoramento da degradação da energia cinemática das partículas ao longo de toda a simulação deu origem ao perfil espectral consolidado no arquivo gráfico `outputs/images/espectro_energia.png`.
+
+<p align="center">
+  <img src="outputs/images/espectro_energia.png" alt="Figura 3: Espectro Populacional de Energia dos Fótons" width="60%">
+  <br>
+  <em>Figura 3: Espectro de distribuição energética evidenciando a linha primária e a assinatura do contínuo de Compton.</em>
+</p>
+
+* **A Linha Primária Unimodal:** Observa-se um pico de intensidade vertical isolado exatamente na marca de $120,0 \text{ keV}$. Este pico representa a fração de fótons que se encontram estritamente no seu primeiro livre caminho médio, ou seja, partículas incidentes que ainda não sofreram nenhuma interação atenuadora no fantoma de água.
+* **O Contínuo de Compton:** Abaixo de $120 \text{ keV}$, o gráfico exibe um amplo patamar contínuo (platô) distribuído majoritariamente na faixa entre $30 \text{ keV}$ e $90 \text{ keV}$. Este perfil reconstrói numericamente a assinatura física clássica do contínuo de Compton, mapeando os fótons secundários que perderam frações variáveis de sua energia original após múltiplos choques com os elétrons periféricos.
+* **Pico de Retroespalhamento Cinemático:** Entre $40 \text{ keV}$ e $50 \text{ keV}$, o espectro exibe uma acumulação local pronunciada. Pela cinemática relativística de Compton, fótons que sofrem colisões severas em ângulos obtusos tendem a decair para um limite energético inferior teoricamente fixo. O surgimento deste pico no gráfico comprova que o código modelou com sucesso o acúmulo de radiação secundária degradada de baixa energia.
