@@ -82,21 +82,21 @@ Os coeficientes lineares foram parametrizados com base nas tabelas do *NIST* par
 
 Após o processamento estatístico completo de **50.000 histórias de partículas**, os algoritmos matemáticos geraram os seguintes diagnósticos gráficos na diretoria `outputs/images/`:
 
-### 🗺️ A. Mapa de Trajetórias Estocásticas (`trajectories.png`)
+### 🗺️ A. Mapa de Trajetórias Estocásticas
 
 ![Mapa de Trajetórias](outputs/images/trajectories.png)
 
 * **Descrição Visual:** Exibe uma densa malha vetorial filamentosa multicolorida que diverge a partir do ponto central de injeção cartesiana da fonte $(200, 200)$. Linhas individuais sofrem deflexões angulares abruptas em ziguezague ao longo do espaço.
 * **Análise Numérica e Física:** Ilustra perfeitamente o fenómeno do **Passeio Aleatório (*Random Walk*)**. As quebras lineares marcam a ocorrência exata de eventos Compton, cuja alteração do ângulo $\theta$ segue uma distribuição gaussiana ($\sigma = 0.5 \, \text{rad}$). É evidente a diferença de penetração entre os materiais: materiais com baixo $\mu$ (como `water`) exibem filamentos longos que cobrem quase todo o domínio de $400 \times 400$ píxeis antes da ocorrência da absorção final.
 
-### 🔥 B. Mapa de Calor da Dose Absorvida (`dose_heatmap.png`)
+### 🔥 B. Mapa de Calor da Dose Absorvida
 
 ![Mapa de Calor da Dose](outputs/images/dose_heatmap.png)
 
 * **Descrição Visual:** Matriz bidimensional densa renderizada através da escala cromática `inferno` (*Seaborn*). O núcleo de emissão apresenta uma zona isodósica hiper-intensa e esbranquiçada (amarelo brilhante), decaindo simétrica e radialmente em gradientes de laranja e roxo até atingir o limiar escuro (preto) na periferia.
 * **Análise Numérica e Física:** Mapeia quantitativamente a distribuição da **Dose Absorvida** (energia depositada por unidade de área). O comportamento gráfico valida numericamente a integração da Lei de Beer-Lambert combinada à lei do inverso do quadrado da distância ($1/r^2$). O decaimento acentuado prova que a maior densidade de dose é retida nas proximidades da fonte. Se substituirmos o meio por `lead`, o raio de dispersão contrai-se em mais de $80\%$, confinando a dose a uma área nuclear restrita (comprovando a eficácia da blindagem).
 
-### 📉 C. Histograma Estatístico de Deposição (`energy_distribution.png`)
+### 📉 C. Histograma Estatístico de Deposição
 
 ![Histograma de Energia](outputs/images/energy_distribution.png)
 
