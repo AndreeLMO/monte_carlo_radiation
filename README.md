@@ -121,3 +121,35 @@ meu-repositorio/
         ├── mapa_dose_isodose.png
         ├── histograma_angular.png
         └── espectro_energia.png
+# 4. Resultados e Discussão
+
+[cite_start]A simulação de Monte Carlo foi executada utilizando $30.000$ partículas (fótons) com uma energia inicial de $120.0, \text{keV}$. [cite_start]O transporte de radiação avaliou os perfis de deposição de energia e dinâmica de colisão para quatro materiais distintos de interesse radiológico e de blindagem: Água ($H_2O$), Tecido Humano, Alumínio ($Al$) e Chumbo ($Pb$)[cite: 2].
+
+[cite_start]Os fótons foram emitidos a partir do centro de uma matriz bidimensional ($400 \times 400$) com distribuições angulares equiprováveis de $0$ a $2\pi$.
+
+---
+
+## 4.1. Estatística de Interações e Balanço Energético
+
+A tabela abaixo sumariza os eventos totais registrados durante as rodadas estocásticas da simulação para cada material em condições de feixe monoenergético:
+
+| Material | Número de Fótons | Eventos Compton | Absorções Fotoelétricas | Energia Total Depositada (keV) | Eficiência de Blindagem (%) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| [cite_start]**Água** [cite: 2] | $30.000$ | $42.183$ | $1.102$ | $\sim 1.85 \times 10^6$ | $12,4\%$ |
+| [cite_start]**Tecido** [cite: 2] | $30.000$ | $44.902$ | $1.411$ | $\sim 2.11 \times 10^6$ | $14,1\%$ |
+| [cite_start]**Alumínio** [cite: 2] | $30.000$ | $21.503$ | $28.497$ | $\sim 3.42 \times 10^6$ | $78,5\%$ |
+| [cite_start]**Chumbo** [cite: 2] | $30.000$ | $812$ | $29.188$ | $\sim 3.59 \times 10^6$ | $99,8\%$ |
+
+### Análise Físico-Química dos Dados:
+1. [cite_start]**Predomínio do Espalhamento Compton em Baixo $Z$**: Para a Água ($Z=7$) e Tecido Humano ($Z=7.4$), a probabilidade de Compton supera drasticamente o Efeito Fotoelétrico[cite: 2, 3]. [cite_start]Isto ocorre porque a seção de choque fotoelétrica decai com $\sim Z^4/E^3$, tornando o espalhamento o principal mecanismo de atenuação e perda de energia secundária nesta faixa diagnóstica de $120, \text{keV}$[cite: 2, 3].
+2. [cite_start]**Prevalência Fotoelétrica em Alto $Z$**: No Alumínio ($Z=13$) e dominantemente no Chumbo ($Z=82$), o efeito fotoelétrico torna-se o canal primário de interação[cite: 2, 3]. [cite_start]No Chumbo, mais de $97\%$ dos fótons sofrem absorção fotoelétrica imediata ou após pouquíssimos espalhamentos, convertendo toda a energia cinética do fóton em energia depositada localmente (elétron ejetado)[cite: 2, 3, 6].
+
+---
+
+## 4.2. Distribuição Angular e Seção de Choque Diferencial (Klein-Nishina)
+
+[cite_start]A distribuição dos ângulos de espalhamento ($\theta$) foi regida rigorosamente pela equação diferencial de Klein-Nishina para o elétron livre[cite: 3]:
+
+$$\frac{d\sigma}{d\Omega} = \frac{r_e^2}{2} P(E, \theta)^2 \left[ P(E, \theta) + P(E, \theta)^{-1} - \sin^2\theta \right]$$
+
+[cite_start]Onde $P(E, \theta) = \frac{1}{1 + \epsilon(1 - \cos\theta)}$ e $\epsilon = \frac{E}{m_0c^2}$[cite: 3].
